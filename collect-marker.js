@@ -2,10 +2,25 @@ fs  = require('fs'),
 sys = require('sys'),
 Gin = require('./gin').Gin;
 (function() {
-	var path     = process.argv[2];
-	var encoding = process.argv[3];
+	var path_out = process.argv[2];
+	var path_dir = process.argv[3];
+	var encoding = process.argv[4];
 
 	var delimiter = '\t';
+
+	var ws = fs.createWriteStream(path_out, {
+		'flags'    : 'w',
+		'encoding' : encoding,
+		'mode'     : 0666
+	});
+	ws.write([
+		'path',
+		'open',
+		'char',
+		'close',
+		'text'
+		].join(delimiter) + '\n');
+	ws.end();
 
 	var Pre = Gin.Parser.RegExp;
 	Gin.OPEN       = new Pre(/[\(（<＜\[［\{｛≪〈《【〔「『]/);
@@ -45,27 +60,41 @@ Gin = require('./gin').Gin;
 		};
 	})();
 
-	fs.readFile(path, encoding, function(err, data) {
+	fs.readdir(path_dir, function(err, files) {
 		if (err) throw err;
 
-		var ret = [];
-		var str = data.toString();
+		var re = /\.txt$/i;
+		files.filter(function(val) {
+			return re.test(val);
+		}).forEach(function(val) {
+			var path_file = path_dir + val;
+			fs.readFile(path_file, encoding, function(err, data) {
+				if (err) throw err;
 
-		var lines = str.split(/\n|\r\n?/);
-		for (var i = lines.length; i--;) {
-			var line = trim(lines[i]);
-			if (line.length === 0) {
-				continue;
-			}
-			var match = gin.parse(line, act());
-			if (!match || !match.full) {
-				continue;
-			}
-			var values = match.value;
-			values.unshift(path);
-			ret.push(values.join(delimiter));
-		}
+				var ws = fs.createWriteStream(path_out, {
+					'flags'    : 'a',
+					'encoding' : encoding,
+					'mode'     : 0666
+				});
 
-		sys.puts(ret.join('\n'));
+				var lines = data.toString().split(/\n|\r\n?/);
+				for (var i = lines.length; i--;) {
+					var line = trim(lines[i]);
+					if (line.length === 0) {
+						continue;
+					}
+					var match = gin.parse(line, act());
+					if (!match || !match.full) {
+						continue;
+					}
+					var values = match.value;
+					values.unshift(path_file);
+					ws.write(values.join(delimiter) + '\n');
+				}
+
+				ws.end();
+			});
+		});
 	});
+
 })();
