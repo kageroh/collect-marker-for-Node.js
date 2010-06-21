@@ -32,14 +32,14 @@ Gin = require('./gin').Gin;
 	Gin.S          = new Pre(/[\x09\x20\u3000]/);
 
 	var gin = new Gin.Grammar({
-	  Marker    : / ( Marker0 | Marker1 | Marker2 ):marker ($STRING?):string /,
-	  Marker0   : / $OPEN Types $CLOSE /,
-	  Marker1   : / Types ( $CLOSE | $DOT ) ::unshift /,
-	  Marker2   : / Symbols $KANJI_KANA:kanjikana ::unshift /,
-	  Types     : / Type Type? ::join /,
-	  Type      : / $CHAR - ( $DOT | $OPEN | $CLOSE ) /,
-	  Symbols   : / Symbol Symbol? $S? ::join /,
-	  Symbol    : / $CHAR - ( $DOT | $OPEN | $CLOSE | $KANJI_KANA ) /
+	  Marker  : / ( Marker0 | Marker1 | Marker2 ):marker ($STRING?):string /,
+	  Marker0 : / $OPEN Types $CLOSE /,
+	  Marker1 : / Types ( $CLOSE | $DOT ) ::unshift /,
+	  Marker2 : / Symbols $KANJI_KANA:kanjikana ::unshift /,
+	  Types   : / Type Type? ::join /,
+	  Type    : / $CHAR - ( $DOT | $OPEN | $CLOSE ) /,
+	  Symbols : / Symbol Symbol? $S? ::join /,
+	  Symbol  : / $CHAR - ( $DOT | $OPEN | $CLOSE | $KANJI_KANA ) /
 	}, 'Marker', Gin.SPACE);
 
 	var act = function() {
